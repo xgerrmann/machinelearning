@@ -2,17 +2,14 @@
 library(VIM)
 library(StatMatch)
 library(C50)
+library(dprep)
 
-url <- '../train.dat'
+url <- '../data/train.dat'
 dat <- read.table( file=url, header=TRUE, sep="," )
-
-write.table( dat, "tmp.dat", quote=FALSE, sep="," )
-
-submit = FALSE
 
 if(!submit){
 	#head( dat, 6 )
-	n_crossval =10
+	n_crossval = 10
 	ERR		= rep(0,n_crossval)
 	ERR_C0	= rep(0,n_crossval)
 	ERR_C1	= rep(0,n_crossval)
@@ -26,21 +23,9 @@ if(!submit){
 		dat_shuffle <- dat[sample(n_data),]
 		
 		
-		# split labels and real data
-		X <- dat_shuffle[,1:13]
-		y <- dat_shuffle[,14]
-		
-		#print(head(X,10))
-		#print(head(X_imputed,10))
-		# split test and trainset
-		trainX <- X[1:n_train,]
-		trainy <- y[1:n_train]
-		testX <- X[(n_train+1):n_data,]
-		testy <- y[(n_train+1):n_data]
-		
 		#neighbors = 5
 		# try maxCat and sampleCat
-		# try with and without using imputed values 
+		# try with and without using imputed values
 		#train_knn_imputed = kNN(trainX, variable = colnames(trainX), metric = NULL, k = neighbors,
 		#	dist_var = cilnames(Data), weights = NULL numFun = median,
 		#	catFun = maxCat, makeNA = NULL, NAcond = NULL, impNA = TRUE,
@@ -48,20 +33,35 @@ if(!submit){
 		#	trace = FALSE, imp_var = TRUE, imp_suffix = "imp", addRandom = FALSE,
 		#	useImputedDist = FALSE)
 		
-		train_knn_imputed = kNN(trainX, trace = TRUE)
+		# split labels and real data
+		print('Dat_shuffle:')
+		print(dim(dat_shuffle))
+		X <- dat_shuffle[,1:13]
+		y <- dat_shuffle[,14]
 		
-		#model <- C50::C5.0( trainX, trainy )
-		model <- C50::C5.0( train_knn_imputed, trainy, trials=100)
-		#summary( model )
+		neighbors = 2
+		X_imputed = kNN(X,k = neighbors, numFun = mean, trace = TRUE)
+		X_imputed = X_imputed[,1:13]
 		
-		#p <- predict( model, trainX, type="class" )
-		p <- predict( model, testX, type="class" )
-		#p <- knngow(trainX,testX)
-		#model <- ada( trainX, trainy , iter = 100)
-		#summary( model )
+		# horizontal concatenation of data
+		data_imputed <- cbind(X_imputed,y)
+		print('X_imputed:')
+		print(dim(X_imputed))
+
+		print('Dat_imputed combined:')
+		print(dim(data_imputed))
+		#print(dim(data_imputed))
 		
-		#p <- predict( model, testX)
+		data_train	<- data_imputed[1:n_train,]
+		data_test	<- data_imputed[(n_train+1):n_data,]
+		testy		<- y[(n_train+1):n_data]
 		
+		k = 5;
+		print(dim(data_train))
+		print(dim(data_test))
+		p = knngow(data_train, data_test, k)
+		print(p)
+
 		n_c0_test <- sum(testy=='-')
 		n_c1_test <- sum(testy=='+')
 		n_c0_test
@@ -80,45 +80,7 @@ if(!submit){
 	mean_c0		= mean(ERR_C0)
 	mean_c1		= mean(ERR_C1)
 	
-	print(paste('Correct_total mean: ',mean_total))
-	print(paste('Correct_c0 mean:    ',mean_c0))
-	print(paste('Correct_c1 mean:    ',mean_c1))
-}else{
-	## Make submission
-	file_train <- '../train.dat'
-	dat_train	<- read.table( file=file_train, header=TRUE, sep="," )
-	
-	file_test	<- '../test.dat'
-	dat_test	<- read.table( file=file_test, header=TRUE, sep="," )
-	
-	write.table( dat_train, "train_tmp.dat", quote=FALSE, sep="," )
-	write.table( dat_test, "test_tmp.dat", quote=FALSE, sep="," )
-	
-	# Split data (labels and real data)
-	data <- dat_train[,1:13]
-	labels <- dat_train[,14]
-	
-	# Train model
-	train_knn_imputed = kNN(dat_train, trace = TRUE)
-	
-	model <- C50::C5.0( train_knn_imputed, trainy, trials=100)
-	#summary( model )
-	
-	# Make preditions on test data
-	predictions <- predict( model, dat_test, type="class" )
-	print(predictions)
-
-	# Write to file
-	fname <- 'submission.csv'
-	write('Id,Prediction',fname)
-	
-	for(i in 1:length(predictions)){
-		if(predictions[i]=='-'){
-			write(paste(i,'0',sep=','),fname,append= TRUE)
-		}else{
-			write(paste(i,'1',sep=','),fname,append= TRUE)
-		}
-	}
-	
-	
+	print(paste('Error_total mean: ',mean_total))
+	print(paste('Error_c0 mean:    ',mean_c0))
+	print(paste('Error_c1 mean:    ',mean_c1))
 }
