@@ -4,9 +4,11 @@ import sys
 import os
 import csv
 from colnames import categorical
-from datafunctions import dataset2file, changelabels
+from datafunctions import dataset2file, changelabels, normalizedata
+import numpy as np
 
 def main():
+	## Load data
 	f_train = 'train.csv'
 	f_test	= 'test.csv'
 
@@ -21,15 +23,9 @@ def main():
 	with open(f_test,'rb') as csvfile:
 		data = csv.reader(csvfile, delimiter=",")
 		for row in data:
+			row.append('?') # ? stands for unknown label
 			datSet_total.append(row)
-	#print 'trainset:'
-	#print datSet_total[0]
-
-	#print 'testset:'
-	#print datSet_total[n_train]
-
 	print 'Features: %d'%n_feat
-
 	# Find uniqe values per column
 	n_data = len(datSet_total)
 	print 'n_data: %d'%n_data
@@ -40,7 +36,9 @@ def main():
 	remap	= range(97,122+1) # 'a' - 'z'
 	tmp_map	= range(65,90+1) # 'A' - 'Z'
 	remap.extend(tmp_map)
-	
+
+	datSet_total	= np.array(datSet_total)
+	datSet_total	= normalizedata(datSet_total,categorical)
 	#max_n = 10
 	n_levels = []
 	for i in range(n_feat):
@@ -54,7 +52,7 @@ def main():
 			#	break
 			elem_cur = datSet_total[d][i]
 			if elem_cur == 'NaN':
-				datSet_total[d][i] = 'NA' # use ? 
+				datSet_total[d][i] = 'NA' # use ?
 				continue
 			elif categorical[i]:
 				if elem_cur not in unique_vals:
@@ -70,12 +68,12 @@ def main():
 	## Split data again in test and train data
 	datSet_train	= datSet_total[:n_train]
 	datSet_test		= datSet_total[n_train:]
-	
+
 	for i_Set, Set in enumerate([datSet_train, datSet_test]):
 		# TODO: use column names
 		# construct header
 		n_feat = len(Set[0])
-		header = ','.join('V'+'%d'%(i+1) for i in range(n_feat))
+		header = ('V'+'%d'%(i+1) for i in range(n_feat))
 		
 		if i_Set == 0:
 			fname = f_train
