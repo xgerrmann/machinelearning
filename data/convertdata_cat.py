@@ -51,7 +51,7 @@ def main():
 			#if d>max_n:
 			#	break
 			elem_cur = datSet_total[d][i]
-			if elem_cur == 'NaN':
+			if elem_cur == 'NaN' or elem_cur == 'nan':
 				datSet_total[d][i] = 'NA' # use ?
 				continue
 			elif categorical[i]:
