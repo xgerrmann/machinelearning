@@ -19,10 +19,10 @@ def cat2bool(dataset_categorical,is_categorical):
 # This new dataset can then be used for usage neural networks.
 
 	# find the (number of) unique values for each category
-	n_data = len(dataset_categorical)
-	n_cols_original = len(dataset_categorical[0])
-	categories	= []
-	n_cols_bool	= 0
+	n_data			= len(dataset_categorical)
+	n_cols_original	= len(dataset_categorical[0])
+	categories		= []
+	n_cols_bool		= 0
 	for i in range(len(is_categorical)):
 		cats = np.array([])
 		if is_categorical[i]:
@@ -46,6 +46,7 @@ def cat2bool(dataset_categorical,is_categorical):
 		# select current column from the dataset
 		data_cur = dataset_categorical[:,i]
 		# copy data directly for non categorical features
+		print i
 		if not is_categorical[i]:
 			dataset_converted[:,index_col] = data_cur
 			index_col += 1
@@ -63,7 +64,8 @@ def main():
 	f_test	= 'test.dat'
 	
 	## convert train data
-	datSet_total = []
+	datSet_total= []
+	n_train		= 0
 	with open(f_train,'rb') as csvfile:
 		data = csv.reader(csvfile, delimiter=",")
 		for i_row, row in enumerate(data):
@@ -71,36 +73,35 @@ def main():
 				header = row	# first row is header row
 			else:
 				datSet_total.append(row[1:]) # remove row indices
+				n_train += 1
 
-	datSet_total = np.array(datSet_total)
-	n_train = datSet_total.shape[0]
-	n_feat	= datSet_total.shape[1]
-
-	data_train	= datSet_total[:,:(len(datSet_total[0])-1)] # remove last column (contains labels)
-	datset_NN	= cat2bool(data_train, categorical)
-
-	fname = 'train_NN.dat'
-	datset2file(datset_NN,header,fname)
 	
-	## convert train data
-	datSet_total = []
 	with open(f_test,'rb') as csvfile:
 		data = csv.reader(csvfile, delimiter=",")
 		for i_row, row in enumerate(data):
-			if i_row == 0:
-				header = row	# first row is header row
-			else:
+			# assume same header, thus skip first row
+			if i_row>0:
 				datSet_total.append(row[1:]) # remove row indices
 
-	datSet_total = np.array(datSet_total)
-	n_test	= datSet_total.shape[0]
-	n_feat	= datSet_total.shape[1]
+	datSet_total= np.array(datSet_total)
+	
+	dataX	= datSet_total[:,:-1]	# data
+	datay	= datSet_total[:,-1]	# labels
+	datay	= datay.reshape((len(datay),1))
 
-	data_test	= datSet_total
-	datset_NN	= cat2bool(data_test, categorical)
-
-	fname = 'test_NN.dat'
-	datset2file(datset_NN,header,fname)
+	dataX	= cat2bool(dataX, categorical)
+	print dataX[:10,:]
+	
+	fname_train	= 'train_NN.dat'
+	fname_test	= 'test_NN.dat'
+	print dataX.shape
+	print datay.shape
+	data_train	= np.hstack((dataX[:n_train,:],datay[:n_train]))
+	data_test	= np.hstack((dataX[n_train:,:],datay[n_train:]))
+	print data_train.shape
+	print data_test.shape
+	dataset2file(data_train,[],fname_train)
+	dataset2file(data_test,[],fname_test)
 
 if __name__ == "__main__":
 	main()

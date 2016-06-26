@@ -14,7 +14,12 @@ def changelabels(dataset,labels_current, labels_new):
 	return dataset
 
 def dataset2file(dataset, header, fname):
-	# create output files
+	# TODO: use column names
+	# construct header
+	n_feat = len(dataset[0])
+	header = ('V'+'%d'%(i+1) for i in range(n_feat))
+	print header
+	# create output file
 	with open(fname,'w+') as file_out:
 		# write header
 		file_out.write(',\t'.join(header)+'\n')

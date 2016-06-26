@@ -70,10 +70,6 @@ def main():
 	datSet_test		= datSet_total[n_train:]
 
 	for i_Set, Set in enumerate([datSet_train, datSet_test]):
-		# TODO: use column names
-		# construct header
-		n_feat = len(Set[0])
-		header = ('V'+'%d'%(i+1) for i in range(n_feat))
 		
 		if i_Set == 0:
 			fname = f_train
@@ -84,7 +80,7 @@ def main():
 		# create output files
 		basename	= os.path.splitext(fname)[0]
 		fname_out	= basename+'.dat'
-		dataset2file(Set,header,fname_out)
+		dataset2file(Set,[],fname_out)
 
 if __name__ == "__main__":
 	main()
