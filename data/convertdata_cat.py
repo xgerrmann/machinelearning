@@ -4,10 +4,7 @@ import sys
 import os
 import csv
 from colnames import categorical
-
-
-
-
+from datafunctions import dataset2file, changelabels
 
 def main():
 	f_train = 'train.csv'
@@ -66,18 +63,13 @@ def main():
 				if index > len(remap)-1:
 					sys.exit('Too many unique values')
 				datSet_total[d][i] = chr(remap[index])
-			elem_new = datSeit_total[d][i]
-		n_levels.append[len(unique_vals)]
+			elem_new = datSet_total[d][i]
+		n_levels.append([len(unique_vals)])
 			#print '%s -> %s'%(elem_cur, elem_new)
 
 	## Split data again in test and train data
 	datSet_train	= datSet_total[:n_train]
 	datSet_test		= datSet_total[n_train:]
-	#print 'trainset:'
-	#print datSet_train[0:5]
-
-	#print 'testset:'
-	#print datSet_test[0:5]
 	
 	for i_Set, Set in enumerate([datSet_train, datSet_test]):
 		# TODO: use column names
@@ -87,26 +79,14 @@ def main():
 		
 		if i_Set == 0:
 			fname = f_train
+			Set = changelabels(Set,('0','1'),('-','+'))
 		else:
 			fname = f_test
-
+		
 		# create output files
-		basename = os.path.splitext(fname)[0]
-		fname_out = basename+'.dat'
-		with open(fname_out,'w+') as file_out:
-			file_out.write(header+'\n')
-
-			for i, data in enumerate(Set):
-				if i_Set == 0:
-					# change binary labels to - and +
-					# only if data is traindata, testdata has no labels
-					if data[-1] == '0':
-						data[-1] = '-'
-					else:
-						data[-1] = '+'
-				# add row numbers (start with 1)
-				data_complete = str(i+1)+','+','.join(data)
-				file_out.write(data_complete+'\n')
+		basename	= os.path.splitext(fname)[0]
+		fname_out	= basename+'.dat'
+		dataset2file(Set,header,fname_out)
 
 if __name__ == "__main__":
 	main()

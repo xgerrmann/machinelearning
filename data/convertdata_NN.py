@@ -5,18 +5,7 @@ import os
 import csv
 from colnames import categorical
 import numpy as np
-
-def datset2file(datset, header, fname):
-	# create output files
-	with open(fname,'w+') as file_out:
-		# write header
-		file_out.write(',\t'.join(header)+'\n')
-
-		for i, data in enumerate(datset):
-			# add row numbers (start with 1)
-			data_complete = str(i+1)+',\t'+',\t'.join(data)
-			# write row to file
-			file_out.write(data_complete+'\n')
+from datafunctions import dataset2file
 
 def cat2bool(dataset_categorical,is_categorical):
 # This function takes a dataset(np array) where the categories are
