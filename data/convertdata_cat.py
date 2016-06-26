@@ -5,6 +5,10 @@ import os
 import csv
 from colnames import categorical
 
+
+
+
+
 def main():
 	f_train = 'train.csv'
 	f_test	= 'test.csv'
@@ -41,6 +45,7 @@ def main():
 	remap.extend(tmp_map)
 	
 	#max_n = 10
+	n_levels = []
 	for i in range(n_feat):
 		if categorical[i]:
 			print 'Feature %d is categorical'%i
@@ -61,7 +66,8 @@ def main():
 				if index > len(remap)-1:
 					sys.exit('Too many unique values')
 				datSet_total[d][i] = chr(remap[index])
-			elem_new = datSet_total[d][i]
+			elem_new = datSeit_total[d][i]
+		n_levels.append[len(unique_vals)]
 			#print '%s -> %s'%(elem_cur, elem_new)
 
 	## Split data again in test and train data
@@ -104,4 +110,5 @@ def main():
 
 if __name__ == "__main__":
 	main()
+
 
