@@ -28,7 +28,8 @@ if(!submit){
 		X <- dat_shuffle[,1:n_feat]
 		y <- dat_shuffle[,n_feat+1]
 		# split test and trainset
-		trainX <- X[1:n_train,1:2]
+		N_FEAT = 40
+		trainX <- X[1:n_train,1:N_FEAT]
 		trainy <- y[1:n_train]
 		testX <- X[(n_train+1):n_data,]
 		testy <- y[(n_train+1):n_data]
@@ -36,9 +37,14 @@ if(!submit){
 		
 		#colnames(trainingdata) <-c("Input1", "Input2", "Output")
 		colnames(trainingdata) <-c(colnames(trainX), "Output")
-		net.sqrt <- neuralnet( Output~V1 + V2, trainingdata, hidden = 10, threshold = 0.1)
+		t = paste(colnames(trainX),collapse='+')
+		t = paste('Output~',t)
+		print(t)
+		print(parse(text=t))
+		#net.sqrt <- neuralnet( Output~V1 + V2, trainingdata, hidden = 10, threshold = 0.1)
+		net.sqrt <- neuralnet( eval(parse(text=t)), trainingdata, hidden = 10, threshold = 0.1)
 			
-		testdata <- testX[,1:2]
+		testdata <- testX[,1:N_FEAT]
 		net.results <- compute(net.sqrt, testdata) 
 		#Lets display a better version of the results
 		cleanoutput <- cbind(testdata,testy,

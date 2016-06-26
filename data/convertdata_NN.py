@@ -7,7 +7,7 @@ from colnames import categorical
 import numpy as np
 from datafunctions import dataset2file
 
-def cat2bool(dataset_categorical,is_categorical):
+def cat2bool(dataset_categorical,is_categorical,dtype):
 # This function takes a dataset(np array) where the categories are
 # character formatted and converts it to a dataset where
 # each seperate category for each feature is converted to a boolean column
@@ -54,7 +54,10 @@ def cat2bool(dataset_categorical,is_categorical):
 			n_cats = len(categories[i])
 			for c in range(n_cats):
 				col_bool = data_cur == categories[i][c]
-				dataset_converted[:,index_col] = col_bool.astype(np.string_)
+				if dtype=='bool':# as boolean
+					dataset_converted[:,index_col] = col_bool.astype(np.string_)
+				else:# as integer
+					dataset_converted[:,index_col] = col_bool.astype(np.int).astype(np.string_)
 				index_col += 1
 	return dataset_converted
 
@@ -89,7 +92,8 @@ def main():
 	datay	= datSet_total[:,-1]	# labels
 	datay	= datay.reshape((len(datay),1))
 
-	dataX	= cat2bool(dataX, categorical)
+	dtype	= 'int'
+	dataX	= cat2bool(dataX, categorical,dtype)
 	print dataX[:10,:]
 	
 	fname_train	= 'train_NN.dat'

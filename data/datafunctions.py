@@ -26,7 +26,7 @@ def dataset2file(dataset, header, fname):
 
 		for i, data in enumerate(dataset):
 			# add row numbers (start with 1)
-			data_complete = str(i+1)+',\t'+',\t'.join(data)
+			data_complete = str(i+1)+','+','.join(data)
 			# write row to file
 			file_out.write(data_complete+'\n')
 

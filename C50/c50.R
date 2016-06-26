@@ -4,13 +4,13 @@ library(C50)
 
 url <- '../data/train.dat'
 #url <- '../data/train_NN.dat'
-dat <- read.table( file=url, header=TRUE, sep="," )
+dat <- read.table( file=url, header=TRUE, sep=",", strip.white=TRUE)
 
-submit = FALSE # column are not correct, fix this for NN dataset
+submit = TRUE
 
 if(!submit){
 	print(tail( dat, 2 ))
-	n_crossval = 1
+	n_crossval = 40
 	ERR		= rep(0,n_crossval)
 	ERR_C0	= rep(0,n_crossval)
 	ERR_C1	= rep(0,n_crossval)
@@ -55,9 +55,6 @@ if(!submit){
 		ERR_C1[i]	= 1-correct_c1
 		n_data
 		n_train
-		print(paste('Correct_total: ',1-correct_total))
-		print(paste('Correct_c0:    ',1-correct_c0))
-		print(paste('Correct_c1:    ',1-correct_c1))
 	}
 	
 	mean_total	= mean(ERR)
@@ -95,11 +92,11 @@ if(!submit){
 	write('Id,Prediction',fname)
 	
 	for(i in 1:length(predictions)){
-		#if(predictions[i]=='-'){
-		write(paste(i,predictions[i],sep=','),fname,append= TRUE)
-		#}else{
-		#	write(paste(i,'1',sep=','),fname,append= TRUE)
-		#}
+		if(predictions[i]=='-'){
+			write(paste(i,'0',sep=','),fname,append= TRUE)
+		}else{
+			write(paste(i,'1',sep=','),fname,append= TRUE)
+		}
 	}
 	
 	

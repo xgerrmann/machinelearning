@@ -2,10 +2,8 @@
 library(rpart)
 library(ada)
 
-url <- '../train.dat'
-dat <- read.table( file=url, header=TRUE, sep="," )
-
-write.table( dat, "tmp.dat", quote=FALSE, sep="," )
+url <- '../data/train.dat'
+dat <- read.table( file=url, header=TRUE, sep=",", strip.white=TRUE)
 
 submit = FALSE
 
