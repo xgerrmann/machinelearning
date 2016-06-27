@@ -6,7 +6,7 @@ library(neuralnet)
 url <- '../data/train_NN.dat'
 dat <- read.table( file=url, header=TRUE, sep=",", strip.white = TRUE )
 header <- read.table( file=url, nrows=1, header=FALSE, sep=",", strip.white = TRUE )
-
+print(header)
 submit = FALSE
 
 if(!submit){
@@ -23,33 +23,40 @@ if(!submit){
 		n_train <- 0.95 * n_data
 		#n_train
 		dat_shuffle <- dat[sample(n_data),]
+		print(head(dat_shuffle))
 		# split labels and real data
 		n_feat = NCOL(dat_shuffle)-1
+		print(n_feat)
 		X <- dat_shuffle[,1:n_feat]
 		y <- dat_shuffle[,n_feat+1]
 		# split test and trainset
-		N_FEAT = 40
-		trainX <- X[1:n_train,1:N_FEAT]
+		trainX <- X[1:n_train,1:2]
 		trainy <- y[1:n_train]
-		testX <- X[(n_train+1):n_data,]
+		testX <- X[(n_train+1):n_data,1:2]
 		testy <- y[(n_train+1):n_data]
-		trainingdata <- cbind(trainX, trainy)
-		
-		#colnames(trainingdata) <-c("Input1", "Input2", "Output")
-		colnames(trainingdata) <-c(colnames(trainX), "Output")
-		t = paste(colnames(trainX),collapse='+')
-		t = paste('Output~',t)
+		## add output as last column and also add this to the column names
+		traindata <- cbind(trainX, trainy)
+		print(colnames(trainX))
+		print(head(trainX))
+		colnames(traindata) <- c(colnames(trainX), 'output')
+		#print(paste(colnames(trainX), collapse='+'))
+		# store the expression of variables in a string
+		t = paste(colnames(trainX), collapse='+')
 		print(t)
-		print(parse(text=t))
-		#net.sqrt <- neuralnet( Output~V1 + V2, trainingdata, hidden = 10, threshold = 0.1)
-		net.sqrt <- neuralnet( eval(parse(text=t)), trainingdata, hidden = 10, threshold = 0.1)
-			
-		testdata <- testX[,1:N_FEAT]
-		net.results <- compute(net.sqrt, testdata) 
+		#print(eval(parse(text=t)))
+# parsing the string to R is possible with eval and parse
+		net.sqrt <- neuralnet( output~eval(parse(text=t)), traindata, hidden = 10, threshold = 0.1)
+		print('Finished training')
+		
+		print(net.sqrt)
+		#plot(net.sqrt)
+		
+		testdata	<- testX
+		net.results	<- compute(net.sqrt, testdata)
+		print('Finished testing, now outputting results')
 		#Lets display a better version of the results
 		cleanoutput <- cbind(testdata,testy,
                          as.data.frame(net.results$net.result))
-		#colnames(cleanoutput) <- c("Input1","Input2","Expected_Output","NNet_Output")
 		colnames(cleanoutput) <- c(colnames(testdata),"Expected_Output","NNet_Output")
 		print(cleanoutput)
 # 		n_c0_test <- sum(testy=='-')
