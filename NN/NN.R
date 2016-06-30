@@ -28,8 +28,11 @@ if(!submit){
 		X <- dat_shuffle[,1:n_feat]
 		y <- dat_shuffle[,n_feat+1]
 		# split test and trainset
-		N_FEAT = 112
-		trainX <- X[1:n_train,1:N_FEAT]
+		#N_FEAT = 112
+		FEAT_START	= 1
+		FEAT_END	= 112
+		N_FEAT		= FEAT_END - FEAT_START
+		trainX <- X[1:n_train,FEAT_START:FEAT_END]
 		#trainX <- X[1:n_train,]
 		trainy <- y[1:n_train]
 		testX <- X[(n_train+1):n_data,]
@@ -43,27 +46,29 @@ if(!submit){
 		print(t)
 		print(parse(text=t))
 		#net.sqrt <- neuralnet( Output~V1 + V2, trainingdata, hidden = 10, threshold = 0.1)
+		#hid		= c(10,10)
 		hid		= c(10,10)
 		thresh	= 0.1
 		lrs		= 1
 
 		net.sqrt <- neuralnet( eval(parse(text=t)), trainingdata, hidden = hid, threshold = thresh)
 			
-		testdata <- testX[,1:N_FEAT]
+		testdata <- testX[,FEAT_START:FEAT_END]
 		#testdata <- testX
 		net.results <- compute(net.sqrt, testdata)
-		print(net.results$net.result)
-		write.table( cbind(testy,as.data.frame(net.results$net.result)), paste("results/crossval_",i,"-",n_crossval,'_hidden_',hid,'_thresh_',thresh,'_layers_',lrs,'_feat_',N_FEAT,".dat"), quote=FALSE, sep="," )
 		#Lets display a better version of the results
-		res = as.data.frame(net.results$net.result)
-		cleanoutput <- cbind(testdata,testy,
-                         as.data.frame(net.results$net.result))
+		print('Cleanoutput')
+		res = (net.results$net.result)
+		cleanoutput <- cbind(testy,res)
 		
-		colnames(cleanoutput) <- c(colnames(testdata),"Expected_Output","NNet_Output")
+		colnames(cleanoutput) <- c("Expected_Output","NNet_Output")
 		print(cleanoutput)
+		fname = paste("results/crossval_",i,"-",n_crossval,'_hidden_',paste(hid,sep='-',collapse='-'),'_thresh_',thresh,'_layers_',lrs,'_feat_',N_FEAT,".dat",sep='')
+		#print(fname)
+		write.table( cleanoutput, fname, quote=FALSE, sep="," )
 		thresh = 0.4
 		p = res>thresh
-		print(p)
+		#print(p)
  		n_c0_test <- sum(testy=='0')
  		n_c1_test <- sum(testy=='1')
 # 		n_c0_test
@@ -85,9 +90,9 @@ if(!submit){
 	mean_c0		= mean(ERR_C0)
 	mean_c1		= mean(ERR_C1)
 #	
-	print(paste('Correct_total mean: ',mean_total))
-	print(paste('Correct_c0 mean:    ',mean_c0))
-	print(paste('Correct_c1 mean:    ',mean_c1))
+	print(paste('Error_total mean: ',mean_total))
+	print(paste('Error_c0 mean:    ',mean_c0))
+	print(paste('Error_c1 mean:    ',mean_c1))
 }else{
 	## Make submission
 	file_train <- '../train.dat'

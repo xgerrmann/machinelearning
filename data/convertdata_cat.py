@@ -52,8 +52,8 @@ def main():
 			#	break
 			elem_cur = datSet_total[d][i]
 			if elem_cur == 'NaN' or elem_cur == 'nan':
-				#datSet_total[d][i] = 'NA' # use ?
-				datSet_total[d][i] = '0' # use ? (perform after normalization)
+				datSet_total[d][i] = 'NA' # use ?
+				#datSet_total[d][i] = '0' # use ? (perform after normalization)
 				continue
 			elif categorical[i]:
 				if elem_cur not in unique_vals:
@@ -74,7 +74,7 @@ def main():
 		
 		if i_Set == 0:
 			fname = f_train
-			#Set = changelabels(Set,('0','1'),('-','+'))
+			Set = changelabels(Set,('0','1'),('-','+'))
 		else:
 			fname = f_test
 		
